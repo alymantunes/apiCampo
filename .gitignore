@@ -1,0 +1,62 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.log
+*.pot
+*.pyc
+.Python
+pythonenv*
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- FastAPI / Uvicorn ---
+*.sqlite3
+instance/
+*.db
+
+# --- Configurações locais ---
+.env
+*.env.*
+.envrc
+.secrets/
+*.pem
+*.key
+
+# --- IDEs e editores ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Docker ---
+# Ignore arquivos temporários e build cache
+.docker/
+docker-compose.override.yml
+docker-compose.override.*.yml
+*.pid
+
+# --- Logs e arquivos temporários ---
+*.log
+*.tmp
+*.temp
+*.cache
+*.bak
+
+# --- Testes ---
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+
+# --- Outros ---
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
