@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+cx_Oracle
+python-dotenv
+python-jose
+passlib
+pydantic
+loguru
