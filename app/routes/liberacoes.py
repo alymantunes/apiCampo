@@ -11,6 +11,14 @@ router = APIRouter(prefix="", tags=["liberacoes"])
 
 class LiberacaoPendente(BaseModel):
     nuchave: int
+    NRUNICONOTA: Optional[int] = Field(None, alias="nruniconota")
+    codemp: int
+    codvend: int
+    vendedor: Optional[str] = None
+    codparc: int
+    razaosocial: Optional[str] = None
+    nomeparc: Optional[str] = None
+    tabela: str
     evento: str
     descricao: str
     codususolicit: int
