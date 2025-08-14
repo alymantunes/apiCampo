@@ -67,3 +67,8 @@ htmlcov/
 # --- Arquivos de sistema ---
 .DS_Store
 Thumbs.db
+
+# --- Documentação ---
+README.md
+*.md
+docs/
