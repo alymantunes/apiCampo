@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 router = APIRouter()
 
-@router.get("/health")
+@router.get("")
 def health_check():
     try:
         conn = cx_Oracle.connect(

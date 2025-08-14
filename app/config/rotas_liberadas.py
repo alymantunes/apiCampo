@@ -1,5 +1,7 @@
 
 ROTAS_LIBERADAS = [
-    "/login",
-    "/health"
+    "/auth",
+    "/auth/login",
+    "/health",
+    "/_debug/routes"
 ]

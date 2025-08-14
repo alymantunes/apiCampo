@@ -8,6 +8,6 @@ def get_current_user(authorization: str = Header(...)):
     payload = verificar_token(token)
     return payload
 
-@router.get("/protegido")
+@router.get("")
 def rota_protegida(user: dict = Depends(get_current_user)):
     return {"mensagem": f"Acesso permitido para {user['codusu']} - {user['sub']}"}

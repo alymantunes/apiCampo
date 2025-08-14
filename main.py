@@ -101,3 +101,8 @@ autodiscover_and_include_routers(
     global_prefix=None,       # ou "/api"
     ignore_modules=set(),     # ex.: {"experimental"}
 )
+
+@app.get("/_debug/routes")
+def _debug_routes():
+    return [{"path": getattr(r, "path", ""), "methods": list(getattr(r, "methods", []) or [])}
+            for r in app.router.routes]

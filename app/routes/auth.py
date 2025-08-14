@@ -1,40 +1,63 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, Field
 from app.controllers.auth_controller import (
     autenticar_usuario,
     criar_token,
     criar_refresh_token,
-    verificar_refresh_token
+    verificar_refresh_token,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="", tags=["auth"])
 
+# ---- Schemas ----
 class LoginModel(BaseModel):
-    usuario: str
-    senha: str
+    usuario: str = Field(..., min_length=1)
+    senha: str = Field(..., min_length=1)
 
 class RefreshModel(BaseModel):
     refresh_token: str
 
-@router.post("/login")
-def login(dados: LoginModel):
-    login = autenticar_usuario(dados.usuario, dados.senha)
-    if not login:
-        raise HTTPException(status_code=401, detail="Usuário ou senha inválidos")
-    token = criar_token(login)
-    refresh = criar_refresh_token(login)
-    return {"access_token": token, "refresh_token": refresh, "token_type": "bearer"}
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
 
-@router.post("/refresh")
-def refresh_token(dados: RefreshModel):
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+# ---- Endpoints ----
+@router.post("/login", response_model=TokenPair, status_code=status.HTTP_200_OK)
+def login(dados: LoginModel) -> TokenPair:
+    usuario = autenticar_usuario(dados.usuario, dados.senha)
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuário ou senha inválidos",
+        )
+
+    # ⚠️ garanta que 'usuario' tenha 'codusu' e um identificador para 'sub'
+    # ex.: usuario = {"codusu": 397, "nomeusu": "SUP"} vindo do seu controller
+    token = criar_token(usuario)              # deve incluir {"sub": ..., "codusu": ...}
+    refresh = criar_refresh_token(usuario)    # idem, se precisar
+
+    return TokenPair(access_token=token, refresh_token=refresh)
+
+@router.post("/refresh", response_model=AccessToken, status_code=status.HTTP_200_OK)
+def refresh_token(dados: RefreshModel) -> AccessToken:
     try:
         payload = verificar_refresh_token(dados.refresh_token)
-        login = {"nomeusu": payload["sub"], "codusu": payload.get("codusu", 0)}
-        new_token = criar_token(login)
-        return {"access_token": new_token, "token_type": "bearer"}
-    except:
-        raise HTTPException(status_code=403, detail="Refresh token inválido")
-    
-@router.get("/")
-def root():
-    return {"mensagem": "API funcionando!"}  
+        user = {"codusu": payload.get("codusu"), "nomeusu": payload.get("sub")}
+        if user["codusu"] is None:
+            raise HTTPException(status_code=400, detail="Refresh token sem 'codusu'")
+        new_token = criar_token(user)
+        return AccessToken(access_token=new_token)
+    except HTTPException:
+        # repassa erros já padronizados
+        raise
+    except Exception:
+        # em produção, logue a exceção
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Refresh token inválido",
+        )
